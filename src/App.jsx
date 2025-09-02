@@ -4,11 +4,13 @@ import { AuthProvider, useAuth } from './context/authContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import EventPage from "./pages/EventPage"
 import LoadingSpinner from './components/LoadingSpinner';
+import { EventProvider } from './context/EventContext';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) return <LoadingSpinner />;
   if (!user) return <Navigate to="/login" />;
   return children;
@@ -16,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) return <LoadingSpinner />;
   if (user) return <Navigate to="/dashboard" />;
   return children;
@@ -30,6 +32,7 @@ function AppContent() {
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/event/:id" element={<ProtectedRoute><EventPage /></ProtectedRoute>} />
       </Routes>
     </div>
   );
@@ -38,9 +41,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <EventProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </EventProvider>
     </AuthProvider>
   );
 }

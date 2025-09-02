@@ -65,7 +65,16 @@ export const AuthProvider = ({ children }) => {
         username,
         email,
         password
-      })
+      });
+
+      // Extract token and user from response
+      const { token: newToken, user: userData } = response.data;
+
+      // Save to localStorage & state
+      localStorage.setItem('token', newToken);
+      setToken(newToken);
+      setUser(userData);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
       return { success: true };
     } catch (error) {
@@ -75,6 +84,7 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
+
 
   const logout = () => {
     localStorage.removeItem('token');

@@ -17,7 +17,7 @@ const Signup = () => {
     const result = await signup(form.username, form.email, form.password);
     
     if (result.success) {
-      navigate('/login');
+      navigate('/dashboard');
     } else {
       setError(result.message);
     }
