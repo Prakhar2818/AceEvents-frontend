@@ -4,6 +4,7 @@ import { useEvents } from '../context/EventContext';
 import EventCard from '../components/EventCard';
 import CreateEventModal from '../components/CreateEventModal';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Logo from "../assets/aceevents.png"
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -26,11 +27,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4">
-                <span className="text-xl font-bold text-white">A</span>
+              <div className='flex justify-center'>
+
+                <img src={Logo} alt="Aceevents" className='h-25 w-30 align-center' />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">AceEvents</h1>

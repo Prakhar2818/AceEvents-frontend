@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
+import Logo from "../assets/aceevents.png"
 
 const Signup = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
@@ -21,14 +22,14 @@ const Signup = () => {
     logout();
 
     const result = await signup(form.username, form.email, form.password);
-    
+
     if (result.success) {
       alert('Account created successfully! Please login.');
       navigate('/login', { replace: true });
     } else {
       setError(result.message);
     }
-    
+
     setLoading(false);
   };
 
@@ -38,8 +39,9 @@ const Signup = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">A</span>
+            <div className='flex justify-center'>
+
+              <img src={Logo} alt="Aceevents" className='h-65 align-center' />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Join AceEvents</h1>
             <p className="text-gray-600">Create your account to get started</p>
