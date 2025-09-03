@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEvents } from '../context/EventContext';
 
-const CreateEventModal = ({ onClose, onSuccess }) => {
+const EditEventModal = ({ event, onClose, onSuccess }) => {
   const [form, setForm] = useState({
     title: '',
     description: '',
     dateOptions: [{ date: '', time: '' }],
-    poll: {
-      question: '',
-      options: ['', ''],
-      allowMultiple: false
-    }
+    status: 'active'
   });
   const [loading, setLoading] = useState(false);
-  const { createEvent } = useEvents();
+  const { updateEvent } = useEvents();
+
+  // Initialize form with existing event data
+  useEffect(() => {
+    if (event) {
+      setForm({
+        title: event.title || '',
+        description: event.description || '',
+        dateOptions: event.dateOptions?.length > 0 
+          ? event.dateOptions.map(opt => ({
+              date: new Date(opt.date).toISOString().split('T')[0],
+              time: opt.time
+            }))
+          : [{ date: '', time: '' }],
+        status: event.status || 'active'
+      });
+    }
+  }, [event]);
 
   const updateDateOption = (index, field, value) => {
     const newDateOptions = [...form.dateOptions];
@@ -35,42 +48,10 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
     }
   };
 
-  const updatePollOption = (index, value) => {
-    const newOptions = [...form.poll.options];
-    newOptions[index] = value;
-    setForm({
-      ...form,
-      poll: { ...form.poll, options: newOptions }
-    });
-  };
-
-  const addPollOption = () => {
-    setForm({
-      ...form,
-      poll: {
-        ...form.poll,
-        options: [...form.poll.options, '']
-      }
-    });
-  };
-
-  const removePollOption = (index) => {
-    if (form.poll.options.length > 2) {
-      const newOptions = form.poll.options.filter((_, i) => i !== index);
-      setForm({
-        ...form,
-        poll: { ...form.poll, options: newOptions }
-      });
-    }
-  };
-
   const isFormValid = () => {
-    const validPollOptions = form.poll.options.filter(opt => opt.trim()).length;
     return (
       form.title.trim() &&
       form.description.trim() &&
-      form.poll.question.trim() &&
-      validPollOptions >= 2 &&
       form.dateOptions.every(opt => opt.date && opt.time)
     );
   };
@@ -85,39 +66,30 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
 
     setLoading(true);
 
-    // Clean up poll options
-    const cleanedPollOptions = form.poll.options.filter(option => option.trim());
-    
-    const eventData = {
-      ...form,
-      poll: {
-        ...form.poll,
-        options: cleanedPollOptions
-      }
-    };
+    console.log('🔄 Updating event with data:', form); // DEBUG
 
-    console.log('🚀 Creating event with data:', eventData); // DEBUG
-
-    const result = await createEvent(eventData);
+    const result = await updateEvent(event._id, form);
     
     if (result.success) {
-      alert('🎉 Event created successfully with interactive poll!');
+      alert('✅ Event updated successfully!');
       onSuccess();
     } else {
-      alert(result.message || 'Failed to create event');
+      alert(result.message || 'Failed to update event');
     }
     
     setLoading(false);
   };
 
+  if (!event) return null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b flex items-center justify-between bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="p-6 border-b flex items-center justify-between bg-gradient-to-r from-green-600 to-blue-600 text-white">
           <div>
-            <h2 className="text-2xl font-bold">Create New Event</h2>
-            <p className="text-blue-100">Set up your collaborative event with interactive polling</p>
+            <h2 className="text-2xl font-bold">Edit Event</h2>
+            <p className="text-green-100">Update your event details and date options</p>
           </div>
           <button
             onClick={onClose}
@@ -145,10 +117,10 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                   required
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${
                     !form.title.trim() ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Enter a descriptive event title"
+                  placeholder="Enter event title"
                   maxLength={100}
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -162,18 +134,33 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                 </label>
                 <textarea
                   required
-                  rows={3}
+                  rows={4}
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${
                     !form.description.trim() ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Describe your event, its purpose, and any important details"
+                  placeholder="Update event description"
                   maxLength={500}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   {form.description.length}/500 characters
                 </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Event Status *
+                </label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
               </div>
             </div>
           </div>
@@ -188,7 +175,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
               <button
                 type="button"
                 onClick={addDateOption}
-                className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1"
+                className="text-green-600 hover:text-green-700 font-medium text-sm flex items-center gap-1"
               >
                 ➕ Add Option
               </button>
@@ -204,7 +191,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                       required
                       value={option.date}
                       onChange={(e) => updateDateOption(index, 'date', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
                       min={new Date().toISOString().split('T')[0]}
                     />
                   </div>
@@ -215,7 +202,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                       required
                       value={option.time}
                       onChange={(e) => updateDateOption(index, 'time', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                   {form.dateOptions.length > 1 && (
@@ -235,101 +222,30 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
             </div>
           </div>
 
-          {/* Interactive Poll Section */}
-          <div className="space-y-4 border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="text-2xl">🗳️</span>
-              Interactive Poll *
-            </h3>
-            
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
-              <p className="text-sm text-purple-800 mb-4">
-                <span className="font-medium">✨ New Feature:</span> Create an interactive poll for collaborative decision-making. 
-                Participants can vote in real-time and see live results!
-              </p>
+          {/* Poll Info (Read-only) */}
+          {event.poll && (
+            <div className="space-y-4 border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <span className="text-2xl">🗳️</span>
+                Current Poll (Read-only)
+              </h3>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Poll Question *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.poll.question}
-                    onChange={(e) => setForm({
-                      ...form,
-                      poll: { ...form.poll, question: e.target.value }
-                    })}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 transition ${
-                      !form.poll.question.trim() ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder="What would you like participants to decide on?"
-                    maxLength={200}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {form.poll.question.length}/200 characters
-                  </p>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <label className="text-sm font-medium text-gray-700">
-                      Poll Options * (minimum 2)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={addPollOption}
-                      className="text-purple-600 hover:text-purple-700 font-medium text-sm flex items-center gap-1"
-                    >
-                      ➕ Add Option
-                    </button>
-                  </div>
-                  
-                  {form.poll.options.map((option, index) => (
-                    <div key={index} className="flex gap-3 mb-3">
-                      <input
-                        type="text"
-                        required
-                        value={option}
-                        onChange={(e) => updatePollOption(index, e.target.value)}
-                        className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 transition ${
-                          !option.trim() ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                        placeholder={`Option ${index + 1} *`}
-                        maxLength={100}
-                      />
-                      {form.poll.options.length > 2 && (
-                        <button
-                          type="button"
-                          onClick={() => removePollOption(index)}
-                          className="text-red-600 hover:text-red-700 px-3 text-lg"
-                        >
-                          🗑️
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="allowMultiple"
-                    checked={form.poll.allowMultiple}
-                    onChange={(e) => setForm({
-                      ...form,
-                      poll: { ...form.poll, allowMultiple: e.target.checked }
-                    })}
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="allowMultiple" className="ml-2 text-sm text-gray-700">
-                    Allow multiple selections
-                  </label>
-                </div>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800 mb-2">
+                  <span className="font-medium">Question:</span> "{event.poll.question}"
+                </p>
+                <p className="text-sm text-blue-700">
+                  <span className="font-medium">Options:</span> {event.poll.options?.map(opt => opt.text).join(', ')}
+                </p>
+                <p className="text-sm text-blue-700 mt-2">
+                  <span className="font-medium">Status:</span> {event.poll.isActive ? 'Active' : 'Closed'}
+                </p>
+                <p className="text-xs text-blue-600 mt-2">
+                  💡 Poll details cannot be changed after creation. Use the poll management controls on the event page.
+                </p>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Form Validation Summary */}
           {!isFormValid() && (
@@ -338,8 +254,6 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
               <ul className="text-sm text-red-700 space-y-1">
                 {!form.title.trim() && <li>• Event title is required</li>}
                 {!form.description.trim() && <li>• Event description is required</li>}
-                {!form.poll.question.trim() && <li>• Poll question is required</li>}
-                {form.poll.options.filter(opt => opt.trim()).length < 2 && <li>• At least 2 poll options are required</li>}
                 {!form.dateOptions.every(opt => opt.date && opt.time) && <li>• All date and time options must be filled</li>}
               </ul>
             </div>
@@ -359,17 +273,17 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
               disabled={loading || !isFormValid()}
               className={`flex-1 py-3 rounded-lg font-medium transition ${
                 isFormValid() && !loading
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
+                  ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Creating Event...
+                  Updating Event...
                 </span>
               ) : (
-                '🚀 Create Event with Poll'
+                '💾 Update Event'
               )}
             </button>
           </div>
@@ -379,4 +293,4 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
   );
 };
 
-export default CreateEventModal;
+export default EditEventModal;

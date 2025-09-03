@@ -25,9 +25,9 @@ export const EventProvider = ({ children }) => {
       setEvents(response.data.data);
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to fetch events' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch events'
       };
     } finally {
       setLoading(false);
@@ -40,9 +40,9 @@ export const EventProvider = ({ children }) => {
       const response = await axios.get(`${API_BASE}/event/${id}`);
       return { success: true, data: response.data };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to fetch event' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch event'
       };
     }
   };
@@ -54,9 +54,9 @@ export const EventProvider = ({ children }) => {
       await fetchEvents(); // Refresh events list
       return { success: true, data: response.data };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to create event' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create event'
       };
     }
   };
@@ -68,9 +68,9 @@ export const EventProvider = ({ children }) => {
       await fetchEvents(); // Refresh events list
       return { success: true, data: response.data };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to update event' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update event'
       };
     }
   };
@@ -82,9 +82,9 @@ export const EventProvider = ({ children }) => {
       await fetchEvents(); // Refresh events list
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to delete event' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete event'
       };
     }
   };
@@ -97,9 +97,51 @@ export const EventProvider = ({ children }) => {
       });
       return { success: true, data: response.data };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to send invitation' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to send invitation'
+      };
+    }
+  };
+
+  const voteOnPoll = async (eventId, optionIndex) => {
+    try {
+      console.log('🗳️ Submitting vote:', { eventId, optionIndex }); // DEBUG
+      const response = await axios.post(`${API_BASE}/event/${eventId}/vote`, {
+        optionIndex: parseInt(optionIndex) // Ensure it's a number
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('Vote error:', error.response?.data);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to submit vote'
+      };
+    }
+  };
+
+  const getPollResults = async (eventId) => {
+    try {
+      const response = await axios.get(`${API_BASE}/event/${eventId}/poll`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('Get poll results error:', error.response?.data);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to get poll results'
+      };
+    }
+  };
+
+  const closePoll = async (eventId) => {
+    try {
+      const response = await axios.post(`${API_BASE}/event/${eventId}/poll/close`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('Close poll error:', error.response?.data);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to close poll'
       };
     }
   };
@@ -112,7 +154,10 @@ export const EventProvider = ({ children }) => {
     createEvent,
     updateEvent,
     deleteEvent,
-    inviteUser
+    inviteUser,
+    voteOnPoll,
+    getPollResults,
+    closePoll
   };
 
   return (
