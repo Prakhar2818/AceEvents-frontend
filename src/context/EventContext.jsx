@@ -51,7 +51,7 @@ export const EventProvider = ({ children }) => {
   const createEvent = async (eventData) => {
     try {
       const response = await axios.post(`${API_BASE}/event`, eventData);
-      await fetchEvents(); // Refresh events list
+      await fetchEvents(); 
       return { success: true, data: response.data };
     } catch (error) {
       return {

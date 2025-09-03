@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useEvents } from '../context/EventContext';
 import PollComponent from '../components/PollComponent';
-import EditEventModal from '../components/EditEventModal'; // ✅ ADD THIS IMPORT
+import EditEventModal from '../components/EditEventModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const EventPage = () => {
@@ -15,7 +15,7 @@ const EventPage = () => {
   const [error, setError] = useState(null);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false); // ✅ ADD THIS STATE
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     loadEvent();
@@ -24,10 +24,10 @@ const EventPage = () => {
   const loadEvent = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const result = await fetchEvent(id);
-      
+
       if (result.success) {
         setEvent(result.data.event);
         setUserRole(result.data.userRole);
@@ -37,7 +37,7 @@ const EventPage = () => {
     } catch (err) {
       setError('Failed to load event');
     }
-    
+
     setLoading(false);
   };
 
@@ -47,7 +47,7 @@ const EventPage = () => {
 
     setInviting(true);
     const result = await inviteUser(event._id, inviteEmail.trim());
-    
+
     if (result.success) {
       setInviteEmail('');
       alert('Invitation sent successfully!');
@@ -55,14 +55,13 @@ const EventPage = () => {
     } else {
       alert(result.message);
     }
-    
+
     setInviting(false);
   };
 
-  // ✅ ADD THIS HANDLER
   const handleEditSuccess = () => {
     setShowEditModal(false);
-    loadEvent(); // Refresh event data
+    loadEvent();
   };
 
   if (loading) {
@@ -114,7 +113,7 @@ const EventPage = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {/* ✅ ADD EDIT BUTTON FOR CREATORS */}
+
               {isCreator && (
                 <button
                   onClick={() => setShowEditModal(true)}
@@ -124,12 +123,11 @@ const EventPage = () => {
                   Edit Event
                 </button>
               )}
-              
-              <span className={`px-4 py-2 rounded-full text-sm font-medium ${
-                event.status === 'active' ? 'bg-green-100 text-green-800' :
+
+              <span className={`px-4 py-2 rounded-full text-sm font-medium ${event.status === 'active' ? 'bg-green-100 text-green-800' :
                 event.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
+                  'bg-gray-100 text-gray-800'
+                }`}>
                 {event.status}
               </span>
             </div>
@@ -152,7 +150,7 @@ const EventPage = () => {
 
             {/* Interactive Poll Component */}
             {event.poll && (
-              <PollComponent 
+              <PollComponent
                 event={event}
                 userRole={userRole}
                 onUpdate={loadEvent}
@@ -183,12 +181,12 @@ const EventPage = () => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700 flex items-center gap-2">
                   <span className="text-lg">✨</span>
                   <span>
-                    <strong>Stage 3 Complete!</strong> Interactive polling system is now live. 
+                    <strong>Stage 3 Complete!</strong> Interactive polling system is now live.
                     Use the poll above to make collaborative decisions in real-time!
                   </span>
                 </p>
@@ -319,52 +317,11 @@ const EventPage = () => {
                 ))}
               </div>
             </div>
-
-            {/* Achievement Badge */}
-            <div className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200 rounded-lg p-6">
-              <h4 className="font-bold text-green-800 mb-3 flex items-center gap-2">
-                <span className="text-2xl">🎉</span>
-                Stage 3 Complete!
-              </h4>
-              <div className="text-sm text-green-700 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">✅</span>
-                  Interactive polling system
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">✅</span>
-                  Real-time vote counting
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">✅</span>
-                  Visual results with progress bars
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">✅</span>
-                  Poll management (close/reopen)
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">✅</span>
-                  Multiple selection support
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">✅</span>
-                  Event update functionality
-                </div>
-              </div>
-              
-              <div className="mt-4 p-3 bg-white rounded border border-green-200">
-                <p className="text-xs text-green-800">
-                  <strong>🚀 Complete!</strong> Full CRUD operations for events, 
-                  interactive polling, and comprehensive UI now implemented!
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </main>
 
-      {/* ✅ ADD EDIT MODAL AT THE END */}
+      {/* Edit Event modal */}
       {showEditModal && (
         <EditEventModal
           event={event}

@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
-
+  // Get user details
   const checkAuth = async () => {
     try {
       const response = await axios.get(`${API_BASE}/auth/me`);
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
-
+  // Login API
   const login = async (email, password) => {
     try {
       const response = await axios.post(`${API_BASE}/auth/login`, { email, password });
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
-
+  // Signup API
   const signup = async (username, email, password) => {
     try {
       const response = await axios.post(`${API_BASE}/auth/signup`, {
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
+  //Logout
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);

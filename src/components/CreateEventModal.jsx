@@ -85,7 +85,6 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
 
     setLoading(true);
 
-    // Clean up poll options
     const cleanedPollOptions = form.poll.options.filter(option => option.trim());
     
     const eventData = {

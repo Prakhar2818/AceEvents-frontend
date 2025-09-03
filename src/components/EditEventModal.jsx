@@ -66,7 +66,7 @@ const EditEventModal = ({ event, onClose, onSuccess }) => {
 
     setLoading(true);
 
-    console.log('🔄 Updating event with data:', form); // DEBUG
+    console.log('🔄 Updating event with data:', form);
 
     const result = await updateEvent(event._id, form);
     

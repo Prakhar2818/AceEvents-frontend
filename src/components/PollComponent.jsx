@@ -28,7 +28,7 @@ const PollComponent = ({ event, userRole, onUpdate }) => {
       const votedOptions = result.data.results.userVotes?.filter(vote => vote.hasVoted);
       if (votedOptions && votedOptions.length > 0) {
         setUserHasVoted(true);
-        setUserVotedOption(votedOptions[0].optionIndex); // For single vote, get first voted option
+        setUserVotedOption(votedOptions[0].optionIndex);
       } else {
         setUserHasVoted(false);
         setUserVotedOption(null);
@@ -39,7 +39,6 @@ const PollComponent = ({ event, userRole, onUpdate }) => {
   };
 
   const handleVote = async (optionIndex) => {
-    // ✅ SINGLE VOTE ENFORCEMENT
     if (voting || !pollData?.isActive || (userHasVoted && !pollData.allowMultiple)) {
       if (userHasVoted && !pollData.allowMultiple) {
         alert('You have already voted! Only one vote per person is allowed.');
@@ -211,7 +210,7 @@ const PollComponent = ({ event, userRole, onUpdate }) => {
         </div>
       </div>
 
-      {/* ✅ POLL RESULTS SECTION */}
+      {/* Poll result section */}
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">📊 Live Results</h3>
