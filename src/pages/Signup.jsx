@@ -15,13 +15,15 @@ const Signup = () => {
     setError('');
 
     const result = await signup(form.username, form.email, form.password);
-    
+
     if (result.success) {
-      navigate('/dashboard');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } else {
       setError(result.message);
     }
-    
+
     setLoading(false);
   };
 
